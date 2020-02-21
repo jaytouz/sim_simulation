@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pedigree;
+package dev2;
 
 /**
  *
@@ -128,7 +128,7 @@ public class Sim implements Comparable<Sim>
     {
         this.deathtime = death_time;
     }
-    
+
     /**
      * 
      * @return null for a founder

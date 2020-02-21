@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pedigree;
+package dev2;
 
 
 import java.util.Arrays;
@@ -70,7 +70,7 @@ public class AgeModel
      */
     public double getSurvival(double age)
     {
-       return Math.exp(-accident_rate*age -death_rate*Math.expm1(age/death_rate)/age_factor);
+       return Math.exp(-accident_rate*age -death_rate* Math.expm1(age/death_rate)/age_factor);
     }
     
     /**
@@ -147,7 +147,7 @@ public class AgeModel
         double accidental_death = -Math.log(RND.nextDouble())/accident_rate;
         // pseudorandom by Gompertz for old-age
         double u = RND.nextDouble();
-        double age_death = death_rate*Math.log1p(-Math.log(u)/death_rate*age_factor);
+        double age_death = death_rate* Math.log1p(-Math.log(u)/death_rate*age_factor);
         
         return Math.min(age_death, accidental_death);
     }
