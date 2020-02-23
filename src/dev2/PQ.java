@@ -42,40 +42,13 @@ public class PQ<K extends Comparable<K>> {
 
     public K deleteMin() {
         K r = T[1];
-        K v = T[size - 1];
-        T[size - 1] = null;
-        size--;
-        if (size > 1) sink(v, 1);
-        return r;
-    }
-
-    public K deleteAt(K subject) {
-        int index = findIndex(subject, 1);
-        K r = T[index];
-        K v = T[size - 1];
-        T[size - 1] = null;
-        size--;
-        if (size > 1) sink(v, index);
-        return r;
-    }
-
-    private int findIndex(K subject, int i) {
-        int position = i;
-        if (2 * i <= size - 1) {
-            if (T[2 * i].compareTo(subject) < 0) {
-                position = findIndex(subject, 2 * i);
-            } else if (T[2 * i].compareTo(subject) == 0) {
-                return 2 * i;
-            }
+        if (size > 1) {
+            K v = T[size - 1];
+            T[size - 1] = null;
+            size--;
+            sink(v, 1);
         }
-        if (2 * i + 1 <= size - 1) {
-            if (T[2 * i + 1].compareTo(subject) < 0) {
-                position = findIndex(subject, 2 * i + 1);
-            } else if (T[2 * i + 1].compareTo(subject) == 0) {
-                return 2 * i + 1;
-            }
-        }
-        return position;
+        return r;
     }
 
     private int parent(int idx) {

@@ -27,21 +27,21 @@ public class Simulation {
         while (!eventQ.isEmpty()) {
             Event E = (Event) eventQ.deleteMin(); // prochain événement
             if (E.time > Tmax) break; // arrêter à Tmax
-            if (E.subject.getDeathTime() > E.time) {  //traiter événement E
-                if (E.type == Event.TypeE.NAISSANCE) {
-                    naissance(E);
-                } else if (E.type == Event.TypeE.REPRODUCTION) {
-                    reproduction(E);
-                }
-            } else {
+            if (E.type == Event.TypeE.NAISSANCE) {
+                naissance(E);
+            } else if (E.type == Event.TypeE.REPRODUCTION) {
+                reproduction(E);
+            } else if (E.type == Event.TypeE.MORT) {
                 mort(E);
             }
+
         }
     }
 
     private void naissance(Event E) {
         double lifeLength = model.randomAge(RND);       //D
         E.subject.setDeathTime(E.time + lifeLength);   //n[1]
+        eventQ.insert(new Event(Event.TypeE.MORT, E.subject, E.time + lifeLength));
 
         if (E.subject.getSex() == Sim.Sex.F) {         //n[2]
             double A = model.randomWaitingTime(RND, rRate);
@@ -53,7 +53,8 @@ public class Simulation {
     }
 
     private void mort(Event E) {
-        population.deleteAt(E.subject);
+        System.out.println(population.size);
+        population.deleteMin();
         System.out.println("Mort");
     }
 
@@ -95,7 +96,7 @@ public class Simulation {
 
     public static void main(String[] args) {
         Simulation simulation = new Simulation();
-        simulation.simulate(100, 1000);
-        System.out.println(simulation.population.size);
+        simulation.simulate(1000, 10000);
+        System.out.println(simulation.population.size + " Sims encore en vie");
     }
 }

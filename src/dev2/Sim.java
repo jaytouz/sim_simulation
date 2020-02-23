@@ -16,12 +16,10 @@
 package dev2;
 
 /**
- *
  * @author Mikl&oacute;s Cs&#369;r&ouml;s
  */
-public class Sim implements Comparable<Sim>
-{
-    private static int NEXT_SIM_IDX=0;
+public class Sim implements Comparable<Sim> {
+    private static int NEXT_SIM_IDX = 0;
 
     public static double MIN_MATING_AGE_F = 16.0;
     public static double MIN_MATING_AGE_M = 16.0;
@@ -36,12 +34,13 @@ public class Sim implements Comparable<Sim>
      * @return
      */
     @Override
-    public int compareTo(Sim o)
-    {
-        return Double.compare(this.deathtime,o.deathtime);
+    public int compareTo(Sim o) {
+        return Double.compare(this.deathtime, o.deathtime);
     }
 
-    public enum Sex {F, M};
+    public enum Sex {F, M}
+
+    ;
 
     private final int sim_ident;
     private double birthtime;
@@ -52,8 +51,7 @@ public class Sim implements Comparable<Sim>
 
     private Sex sex;
 
-    protected Sim(Sim mother, Sim father, double birth, Sex sex)
-    {
+    protected Sim(Sim mother, Sim father, double birth, Sex sex) {
         this.mother = mother;
         this.father = father;
 
@@ -67,10 +65,8 @@ public class Sim implements Comparable<Sim>
 
     /**
      * A founding Sim.
-     *
      */
-    public Sim(Sex sex)
-    {
+    public Sim(Sex sex) {
         this(null, null, 0.0, sex);
     }
 
@@ -80,15 +76,13 @@ public class Sim implements Comparable<Sim>
      * @param time
      * @return true if alive, sexually mature and not too old
      */
-    public boolean isMatingAge(double time)
-    {
-        if (time<getDeathTime())
-        {
-            double age = time-getBirthTime();
+    public boolean isMatingAge(double time) {
+        if (time < getDeathTime()) {
+            double age = time - getBirthTime();
             return
                     Sex.F.equals(getSex())
-                    ? age>=MIN_MATING_AGE_F && age <= MAX_MATING_AGE_F
-                    : age>=MIN_MATING_AGE_M && age <= MAX_MATING_AGE_M;
+                            ? age >= MIN_MATING_AGE_F && age <= MAX_MATING_AGE_F
+                            : age >= MIN_MATING_AGE_M && age <= MAX_MATING_AGE_M;
         } else
             return false; // no mating with dead people
     }
@@ -99,76 +93,64 @@ public class Sim implements Comparable<Sim>
      * @param time
      * @return
      */
-    public boolean isInARelationship(double time)
-    {
-        return mate != null && mate.getDeathTime()>time
-                && mate.getMate()==this;
+    public boolean isInARelationship(double time) {
+        return mate != null && mate.getDeathTime() > time
+                && mate.getMate() == this;
     }
 
-    public void setDeath(double death)
-    {
+    public void setDeath(double death) {
         this.deathtime = death;
     }
 
-    public Sex getSex()
-    {
+    public Sex getSex() {
         return sex;
     }
 
-    public double getBirthTime()
-    {
+    public double getBirthTime() {
         return birthtime;
     }
 
-    public double getDeathTime()
-    {
+    public double getDeathTime() {
         return deathtime;
     }
 
-    public void setDeathTime(double death_time)
-    {
+    public void setDeathTime(double death_time) {
         this.deathtime = death_time;
     }
 
     /**
-     *
      * @return null for a founder
      */
-    public Sim getMother()
-    {
+    public Sim getMother() {
         return mother;
     }
 
     /**
-     *
      * @return null for a founder
      */
-    public Sim getFather()
-    {
+    public Sim getFather() {
         return father;
     }
 
-    public Sim getMate()
-    {
+    public Sim getMate() {
         return mate;
     }
 
-    public void setMate(Sim mate){this.mate = mate;}
-
-    public boolean isFounder()
-    {
-        return (mother==null && father==null);
+    public void setMate(Sim mate) {
+        this.mate = mate;
     }
 
-    private static String getIdentString(Sim sim)
-    {
-        return sim==null?"":"sim."+sim.sim_ident+"/"+sim.sex;
+    public boolean isFounder() {
+        return (mother == null && father == null);
+    }
+
+    private static String getIdentString(Sim sim) {
+        return sim == null ? "" : "sim." + sim.sim_ident + "/" + sim.sex;
     }
 
     @Override
-    public String toString()
-    {
-        return getIdentString(this)+" ["+birthtime+".."+deathtime+", mate "+getIdentString(mate)+"\tmom "+getIdentString(getMother())+"\tdad "+getIdentString(getFather())
-        +"]";
+    public String toString() {
+        return getIdentString(this) + " [" + birthtime + ".." + deathtime + ", mate " + getIdentString(mate) + "\tmom " + getIdentString(getMother()) + "\tdad " + getIdentString(getFather())
+                + "]";
     }
 }
