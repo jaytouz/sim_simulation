@@ -1,6 +1,15 @@
 package dev2;
 
-import java.util.Random;
+import com.sun.source.tree.Tree;
+
+import java.awt.geom.Point2D;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 public class Simulation {
 
@@ -11,11 +20,17 @@ public class Simulation {
 
     AgeModel model = new AgeModel();
 
+    TreeMap<Double, Integer> popSizeTotal;
+    TreeMap<Double, Integer> aieux;
+    TreeMap<Double, Integer> aieules;
+
+
     double rRate = 2 / model.expectedParenthoodSpan(Sim.MIN_MATING_AGE_F, Sim.MAX_MATING_AGE_F);
 
     public void simulate(int n, double Tmax) {
         eventQ = new PQ<Event>(); // file de priorité
         population = new Population();
+        popSizeTotal = new TreeMap<Double, Integer>();
 
 
         for (int i = 0; i < n; i++) {
@@ -26,6 +41,7 @@ public class Simulation {
 
         while (!eventQ.isEmpty()) {
             Event E = (Event) eventQ.deleteMin(); // prochain événement
+            popSizeTotal.put(E.time, population.size);
             if (E.time > Tmax) break; // arrêter à Tmax
             if (E.type == Event.TypeE.NAISSANCE) {
                 naissance(E);
@@ -34,6 +50,8 @@ public class Simulation {
             } else if (E.type == Event.TypeE.MORT) {
                 mort(E);
             }
+
+            System.out.println("YEAR : + " + E.time + "TYPE " + E.type.toString());
 
         }
     }
@@ -49,13 +67,13 @@ public class Simulation {
             eventQ.insert(newEvent);
         }
         population.insert(E.subject);
-        System.out.println("Naissance");
+//        System.out.println("Naissance");
     }
 
     private void mort(Event E) {
         System.out.println(population.size);
         population.deleteMin();
-        System.out.println("Mort");
+//        System.out.println("Mort");
     }
 
     private void reproduction(Event E) {
@@ -68,7 +86,7 @@ public class Simulation {
             eventQ.insert(naissance);
             maman.setMate(papa);
             papa.setMate(maman);
-            System.out.println("Reproduction");
+//            System.out.println("Reproduction");
         }
         double A = model.randomWaitingTime(RND, rRate);
         Event repro = new Event(Event.TypeE.REPRODUCTION, maman, time + A);
@@ -93,10 +111,71 @@ public class Simulation {
         }
         return partenaire;
     }
+    public void extractAieux(Population maleSurvivors){
+        aieux = new TreeMap<Double, Integer>();
+        Population hommePA = maleSurvivors;
+        while(!hommePA.isEmpty() || !hommePA.onlyFondateur()){
+            Sim sim =(Sim) hommePA.deleteMin();
+            Sim father = sim.getFather();
+            if (father != null && !hommePA.contains(father)){
+                hommePA.insert(father);
+            }
+            aieux.put(sim.getBirthTime(), hommePA.size);
+        }
+    }
+
+    public void extractAieule(Population femaleSurvivors){
+        aieules = new TreeMap<Double, Integer>();
+        Population femmePA = femaleSurvivors;
+        while(!femmePA.isEmpty() || !femmePA.onlyFondateur()){
+            Sim sim =(Sim) femmePA.deleteMin();
+            Sim mother = sim.getMother();
+            if (mother != null && !femmePA.contains(mother)){
+                femmePA.insert(mother);
+            }
+            aieules.put(sim.getBirthTime(), femmePA.size);
+        }
+    }
+    public void setCoalescence(){
+        Population[] male_female = Population.splitMaleFemaleSurvivors(population);
+        extractAieux(male_female[0]);
+        extractAieule(male_female[1]);
+    }
+
+    public void saveAieuxAileulesToFile(int initialPopSize, int tMax) throws IOException {
+        Date date = new Date();
+        String basePath = new File("").getAbsolutePath();
+        basePath += "/out/production/dev2_sim/data/";
+        String fileName = String.format("simulation_%d_%d_%d.txt", initialPopSize, tMax, date.getTime());
+        File file = new File(basePath + fileName);
+
+        BufferedWriter out = new BufferedWriter(new FileWriter(file));
+        try {
+            out.write("time,size,sex\n" );
+            for (Double time : aieux.keySet()) {
+                out.write(time + "," + aieux.get(time) + "," + "M" + "," + popSizeTotal.get(time) +"\n");
+            }
+            for (Double time : aieules.keySet()) {
+                out.write(time + "," + aieules.get(time) + "," + "F" + "," + popSizeTotal.get(time) + "\n");
+            }
+        }
+        catch(IOException e){
+            System.out.println(e.getMessage());
+        }finally {
+            out.close();
+        }
+    }
 
     public static void main(String[] args) {
         Simulation simulation = new Simulation();
-        simulation.simulate(1000, 10000);
+        simulation.simulate(1000, 2000);
         System.out.println(simulation.population.size + " Sims encore en vie");
+        simulation.setCoalescence();
+        try{
+            simulation.saveAieuxAileulesToFile(1000, 2000);
+        }catch (IOException e){
+            System.out.println(e.getMessage());
+        }
+
     }
 }

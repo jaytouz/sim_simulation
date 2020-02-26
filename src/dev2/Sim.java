@@ -19,6 +19,7 @@ package dev2;
  * @author Mikl&oacute;s Cs&#369;r&ouml;s
  */
 public class Sim implements Comparable<Sim> {
+
     private static int NEXT_SIM_IDX = 0;
 
     public static double MIN_MATING_AGE_F = 16.0;
@@ -38,9 +39,7 @@ public class Sim implements Comparable<Sim> {
         return Double.compare(this.deathtime, o.deathtime);
     }
 
-    public enum Sex {F, M}
-
-    ;
+    public enum Sex {F, M};
 
     private final int sim_ident;
     private double birthtime;
@@ -67,6 +66,7 @@ public class Sim implements Comparable<Sim> {
      * A founding Sim.
      */
     public Sim(Sex sex) {
+
         this(null, null, 0.0, sex);
     }
 
@@ -142,6 +142,10 @@ public class Sim implements Comparable<Sim> {
 
     public boolean isFounder() {
         return (mother == null && father == null);
+    }
+
+    public int getSim_ident() {
+        return sim_ident;
     }
 
     private static String getIdentString(Sim sim) {
